@@ -20,11 +20,13 @@
       align-items: center;
       height: 100vh;
       overflow: hidden;
+      padding: 0;
     }
     .score-controls {
       display: flex;
       align-items: center;
       gap: 10px;
+      padding: 5px;
     }
     .score-button {
       background-color: #444444;
@@ -49,20 +51,21 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
-      width: 80vw;
+      gap: 10px;
+      width: 100vw;
       max-width: 800px;
+      flex-grow: 1;
     }
     .grid-container {
       display: flex;
       justify-content: center;
       width: 100%;
-      height: 50vh;
+      height: 40vh;
     }
     .grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 5px;
+      gap: 2px;
       width: 100%;
       height: 100%;
     }
@@ -88,11 +91,11 @@
     }
     .hand {
       display: flex;
-      gap: 10px;
-      margin-top: 10px;
+      gap: 5px;
+      margin-top: 5px;
       border-radius: 5px;
       justify-content: center;
-      padding: 5px;
+      padding: 3px;
     }
     .hand.moonrise {
       background-color: #FFFFFF;
@@ -104,7 +107,7 @@
     }
     .card {
       background-color: #555555;
-      padding: 10px;
+      padding: 5px;
       border-radius: 5px;
       cursor: pointer;
       font-size: 2vw;
@@ -115,12 +118,12 @@
     }
     .moon-phase-guide {
       position: absolute;
-      right: 20px;
+      right: 10px;
       top: 50%;
       transform: translateY(-50%);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 5px;
       align-items: center;
       font-size: 2vw;
       cursor: pointer;
@@ -145,9 +148,10 @@
       }
       .game-container {
         width: 100%;
+        gap: 5px;
       }
       .grid-container {
-        height: 45vh;
+        height: 35vh;
       }
       .cell, .card {
         font-size: 4vw;
@@ -157,7 +161,7 @@
       }
       .score-button {
         font-size: 4vw;
-        padding: 5px 15px;
+        padding: 5px 10px;
       }
     }
   </style>
@@ -332,7 +336,9 @@
 
 🌑 + 🌘 + 🌗 = 3
 🌘 + 🌗 + 🌖 + 🌕 = 4
-`);
+
+⬜ +1
+⬛ +1`);
     }
 
     dealHands();
