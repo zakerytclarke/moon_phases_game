@@ -11,11 +11,12 @@
       padding: 0;
     }
     body {
-      background-color: #2e2e30; /* Slightly lighter background for better contrast */
+      background-color: #2e2e30;
       color: #FFFFFF;
       font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
+      align-items: center;
       height: 100vh;
       overflow: hidden;
     }
@@ -23,23 +24,22 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       gap: 20px;
-      flex-grow: 1;
+      width: 80vw;
+      max-width: 800px;
     }
     .grid-container {
       display: flex;
-      align-items: center;
       justify-content: center;
-      width: 100vw;
-      height: 60vh;
+      width: 100%;
+      height: 50vh;
     }
     .grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 5px;
-      width: calc(5 * 70px);
-      height: calc(4 * 70px);
+      width: 100%;
+      height: 100%;
     }
     .cell {
       background-color: #333333;
@@ -47,40 +47,40 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 2vw;
       cursor: pointer;
       border-radius: 5px;
-      height: 70px;
-      width: 70px;
+      height: 100%;
+      width: 100%;
       border: 2px solid transparent;
       transition: border 0.3s;
     }
     .cell.player1 {
-      border: 2px solid #FFFFFF; /* White border for Moonrise */
+      border: 2px solid #FFFFFF;
     }
     .cell.player2 {
-      border: 2px solid #000000; /* Black border for Moonset */
+      border: 2px solid #000000;
     }
     .player-area {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 10px;
-      width: 80vw;
+      width: fit-content;
     }
     .hand {
       display: flex;
       gap: 10px;
-      margin-top: 5px;
-      padding: 10px;
+      margin-top: 10px;
       border-radius: 5px;
+      justify-content: center;
+      padding: 5px;
     }
     .hand.moonrise {
-      background-color: #FFFFFF; /* White background for Moonrise */
+      background-color: #FFFFFF;
       color: #000000;
     }
     .hand.moonset {
-      background-color: #000000; /* Black background for Moonset */
+      background-color: #000000;
       color: #FFFFFF;
     }
     .card {
@@ -88,15 +88,16 @@
       padding: 10px;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 24px;
+      font-size: 2vw;
       transition: border 0.2s;
     }
     .card.selected {
-      border: 2px solid #FFD700; /* Highlight selected card */
+      border: 2px solid #FFD700;
     }
     .score {
-      font-size: 20px;
-      padding: 10px;
+      font-size: 1.5vw;
+      padding: 5px;
+      text-align: center;
     }
     .moon-phase-guide {
       position: absolute;
@@ -105,10 +106,37 @@
       transform: translateY(-50%);
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 10px;
       align-items: center;
-      font-size: 30px;
+      font-size: 2vw;
       cursor: pointer;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 600px) {
+      body {
+        flex-direction: column;
+        padding: 10px;
+      }
+      .game-container {
+        width: 100%;
+      }
+      .grid-container {
+        height: 45vh;
+      }
+      .cell, .card {
+        font-size: 4vw;
+      }
+      .score {
+        font-size: 4vw;
+      }
+      .moon-phase-guide {
+        position: fixed;
+        bottom: 5vh;
+        right: 5vw;
+        font-size: 6vw;
+        transform: none;
+      }
     }
   </style>
 </head>
@@ -131,7 +159,7 @@
     </div>
   </div>
 
-  <!-- Moon Phase Guide on the Right -->
+  <!-- Moon Phase Guide on the Right for Desktop, Bottom Right for Mobile -->
   <div class="moon-phase-guide" onclick="displayScoringInfo()">
     <div>🌑</div>
     <div>🌘</div>
@@ -274,21 +302,17 @@
         if (r >= 0 && r < 5 && c >= 0 && c < 4) {
           const adjacentCard = grid[r][c].phase;
           if (adjacentCard) {
-            // Rule 1: Exact Match
             if (adjacentCard === grid[row][col].phase) {
               points += 1;
-              updateTileInteraction(r, c, currentPlayer); // Flip border for exact match
-            }
-            // Rule 2: Moon Pair
-            else if (moonPairs.has(adjacentCard + grid[row][col].phase)) {
+              updateTileInteraction(r, c, currentPlayer);
+            } else if (moonPairs.has(adjacentCard + grid[row][col].phase)) {
               points += 2;
-              updateTileInteraction(r, c, currentPlayer); // Flip border for moon pair
+              updateTileInteraction(r, c, currentPlayer);
             }
           }
         }
       });
 
-      // Rule 3: Moon Streak
       points += calculateMoonStreak(row, col);
 
       if (currentPlayer === 1) {
@@ -334,7 +358,6 @@
       let moonriseTiles = 0;
       let moonsetTiles = 0;
 
-      // Count tiles with each player's border
       document.querySelectorAll('.cell').forEach(cell => {
         if (cell.classList.contains('player1')) moonriseTiles++;
         if (cell.classList.contains('player2')) moonsetTiles++;
