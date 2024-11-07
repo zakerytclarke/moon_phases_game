@@ -15,10 +15,35 @@
       color: #FFFFFF;
       font-family: Arial, sans-serif;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      justify-content: space-between;
       align-items: center;
       height: 100vh;
       overflow: hidden;
+    }
+    .score-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .score-button {
+      background-color: #444444;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 1.5vw;
+      transition: background-color 0.3s;
+    }
+    .score-button:hover {
+      background-color: #666666;
+    }
+    .score {
+      font-size: 1.5vw;
+      padding: 5px;
+      text-align: center;
+      width: 50px;
     }
     .game-container {
       display: flex;
@@ -61,12 +86,6 @@
     .cell.player2 {
       border: 2px solid #000000;
     }
-    .player-area {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: fit-content;
-    }
     .hand {
       display: flex;
       gap: 10px;
@@ -94,11 +113,6 @@
     .card.selected {
       border: 2px solid #FFD700;
     }
-    .score {
-      font-size: 1.5vw;
-      padding: 5px;
-      text-align: center;
-    }
     .moon-phase-guide {
       position: absolute;
       right: 20px;
@@ -112,10 +126,21 @@
       cursor: pointer;
     }
 
+    /* Rotate Moonrise score and controls at the top */
+    .score-controls.top {
+      transform: rotate(180deg);
+    }
+
+    /* Hide the key on mobile in portrait mode */
+    @media (max-width: 600px) and (orientation: portrait) {
+      .moon-phase-guide {
+        display: none;
+      }
+    }
+
     /* Mobile-specific styles */
     @media (max-width: 600px) {
       body {
-        flex-direction: column;
         padding: 10px;
       }
       .game-container {
@@ -130,20 +155,23 @@
       .score {
         font-size: 4vw;
       }
-      .moon-phase-guide {
-        position: fixed;
-        bottom: 5vh;
-        right: 5vw;
-        font-size: 6vw;
-        transform: none;
+      .score-button {
+        font-size: 4vw;
+        padding: 5px 15px;
       }
     }
   </style>
 </head>
 <body>
+  <!-- Top Score Controls for Moonrise Player (Rotated 180 degrees) -->
+  <div class="score-controls top">
+    <button class="score-button" onclick="adjustScore('moonrise', -1)">-</button>
+    <div id="moonrise-score" class="score">0</div>
+    <button class="score-button" onclick="adjustScore('moonrise', 1)">+</button>
+  </div>
+
   <div class="game-container">
     <div id="moonset-area" class="player-area">
-      <div id="moonset-score" class="score">Moonset: 0</div>
       <div id="moonset-hand" class="hand moonset"></div>
     </div>
 
@@ -155,11 +183,17 @@
 
     <div id="moonrise-area" class="player-area">
       <div id="moonrise-hand" class="hand moonrise"></div>
-      <div id="moonrise-score" class="score">Moonrise: 0</div>
     </div>
   </div>
 
-  <!-- Moon Phase Guide on the Right for Desktop, Bottom Right for Mobile -->
+  <!-- Bottom Score Controls for Moonset Player (No Rotation) -->
+  <div class="score-controls">
+    <button class="score-button" onclick="adjustScore('moonset', -1)">-</button>
+    <div id="moonset-score" class="score">0</div>
+    <button class="score-button" onclick="adjustScore('moonset', 1)">+</button>
+  </div>
+
+  <!-- Moon Phase Guide on the Right for Desktop, Hidden on Mobile Portrait -->
   <div class="moon-phase-guide" onclick="displayScoringInfo()">
     <div>🌑</div>
     <div>🌘</div>
@@ -175,19 +209,14 @@
     const phases = ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"];
     const deck = shuffle([...phases, ...phases, ...phases]);
 
+    let moonriseScore = 0;
+    let moonsetScore = 0;
+    let currentPlayer = 1;
+    let selectedCard = null;
+    let selectedCardIndex = null;
     const grid = Array(5).fill(null).map(() => Array(4).fill({ phase: null, lastPlayer: null }));
     let moonriseHand = [];
     let moonsetHand = [];
-    let currentPlayer = 1;
-    let moonriseScore = 0;
-    let moonsetScore = 0;
-    let selectedCard = null;
-    let selectedCardIndex = null;
-
-    const moonPairs = new Set([
-      "🌑🌕", "🌒🌖", "🌓🌗", "🌔🌘",
-      "🌕🌑", "🌖🌒", "🌗🌓", "🌘🌔"
-    ]);
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -198,7 +227,7 @@
     }
 
     function drawCard() {
-      return deck.length ? deck.pop() : ""; // Render empty card if deck is exhausted
+      return deck.length ? deck.pop() : "";
     }
 
     function dealHands() {
@@ -216,12 +245,9 @@
       moonriseHand.forEach((card, index) => {
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card';
-        cardDiv.innerText = card || ""; // Render as empty card if deck is exhausted
+        cardDiv.innerText = card || "";
         if (currentPlayer === 1) {
           cardDiv.onclick = () => handleCardClick(card, index);
-        }
-        if (selectedCard === card && selectedCardIndex === index) {
-          cardDiv.classList.add('selected');
         }
         moonriseHandDiv.appendChild(cardDiv);
       });
@@ -229,12 +255,9 @@
       moonsetHand.forEach((card, index) => {
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card';
-        cardDiv.innerText = card || ""; // Render as empty card if deck is exhausted
+        cardDiv.innerText = card || "";
         if (currentPlayer === 2) {
           cardDiv.onclick = () => handleCardClick(card, index);
-        }
-        if (selectedCard === card && selectedCardIndex === index) {
-          cardDiv.classList.add('selected');
         }
         moonsetHandDiv.appendChild(cardDiv);
       });
@@ -262,112 +285,33 @@
     function handleCellClick(row, col) {
       if (grid[row][col].phase !== null || !selectedCard) return;
 
-      if (currentPlayer === 1 && moonriseHand[selectedCardIndex] === selectedCard) {
+      // Place the selected card on the grid and update the cell's border
+      grid[row][col] = { phase: selectedCard, lastPlayer: currentPlayer };
+      const cell = document.getElementsByClassName('cell')[row * 4 + col];
+      cell.innerText = selectedCard;
+      cell.classList.add(currentPlayer === 1 ? 'player1' : 'player2');
+
+      // Replace the placed card with a new one from the deck
+      if (currentPlayer === 1) {
         moonriseHand[selectedCardIndex] = drawCard();
-      } else if (currentPlayer === 2 && moonsetHand[selectedCardIndex] === selectedCard) {
+      } else {
         moonsetHand[selectedCardIndex] = drawCard();
       }
 
-      grid[row][col] = { phase: selectedCard, lastPlayer: currentPlayer };
-      document.getElementsByClassName('cell')[row * 4 + col].innerText = selectedCard;
-      updateTileInteraction(row, col, currentPlayer);
-
-      scorePoints(row, col);
       selectedCard = null;
       selectedCardIndex = null;
+      currentPlayer = currentPlayer === 1 ? 2 : 1;
+      updateHands();
+    }
 
-      if (isBoardFull()) {
-        calculateFinalScore();
+    function adjustScore(player, amount) {
+      if (player === 'moonrise') {
+        moonriseScore = Math.max(0, moonriseScore + amount);
+        document.getElementById('moonrise-score').innerText = moonriseScore;
       } else {
-        currentPlayer = currentPlayer === 1 ? 2 : 1;
-        updateHands();
+        moonsetScore = Math.max(0, moonsetScore + amount);
+        document.getElementById('moonset-score').innerText = moonsetScore;
       }
-    }
-
-    function updateTileInteraction(row, col, player) {
-      const cell = document.getElementsByClassName('cell')[row * 4 + col];
-      cell.classList.remove('player1', 'player2');
-      cell.classList.add(player === 1 ? 'player1' : 'player2');
-    }
-
-    function scorePoints(row, col) {
-      let points = 0;
-
-      const adjacentPositions = [
-        [row - 1, col], [row + 1, col],
-        [row, col - 1], [row, col + 1]
-      ];
-
-      adjacentPositions.forEach(([r, c]) => {
-        if (r >= 0 && r < 5 && c >= 0 && c < 4) {
-          const adjacentCard = grid[r][c].phase;
-          if (adjacentCard) {
-            if (adjacentCard === grid[row][col].phase) {
-              points += 1;
-              updateTileInteraction(r, c, currentPlayer);
-            } else if (moonPairs.has(adjacentCard + grid[row][col].phase)) {
-              points += 2;
-              updateTileInteraction(r, c, currentPlayer);
-            }
-          }
-        }
-      });
-
-      points += calculateMoonStreak(row, col);
-
-      if (currentPlayer === 1) {
-        moonriseScore += points;
-        document.getElementById('moonrise-score').innerText = `Moonrise: ${moonriseScore}`;
-      } else {
-        moonsetScore += points;
-        document.getElementById('moonset-score').innerText = `Moonset: ${moonsetScore}`;
-      }
-    }
-
-    function calculateMoonStreak(row, col) {
-      let streakLength = 1;
-      const visited = new Set();
-
-      const dfs = (r, c, targetPhaseIndex) => {
-        if (visited.has(`${r},${c}`) || r < 0 || r >= 5 || c < 0 || c >= 4) return;
-        const cellPhase = grid[r][c].phase;
-        if (cellPhase === null || phases[(phases.indexOf(cellPhase) - targetPhaseIndex + 8) % 8] !== cellPhase) return;
-
-        visited.add(`${r},${c}`);
-        streakLength++;
-        [[0, 1], [1, 0], [0, -1], [-1, 0]].forEach(([dr, dc]) => dfs(r + dr, c + dc, (targetPhaseIndex + 1) % 8));
-      };
-
-      dfs(row, col, phases.indexOf(grid[row][col].phase));
-
-      if (streakLength >= 3) {
-        visited.forEach(key => {
-          const [r, c] = key.split(",").map(Number);
-          updateTileInteraction(r, c, currentPlayer);
-        });
-        return streakLength;
-      }
-      return 0;
-    }
-
-    function isBoardFull() {
-      return grid.flat().every(cell => cell.phase !== null);
-    }
-
-    function calculateFinalScore() {
-      let moonriseTiles = 0;
-      let moonsetTiles = 0;
-
-      document.querySelectorAll('.cell').forEach(cell => {
-        if (cell.classList.contains('player1')) moonriseTiles++;
-        if (cell.classList.contains('player2')) moonsetTiles++;
-      });
-
-      moonriseScore += moonriseTiles;
-      moonsetScore += moonsetTiles;
-
-      document.getElementById('moonrise-score').innerText = `Moonrise: ${moonriseScore}`;
-      document.getElementById('moonset-score').innerText = `Moonset: ${moonsetScore}`;
     }
 
     function displayScoringInfo() {
@@ -388,9 +332,7 @@
 
 🌑 + 🌘 + 🌗 = 3
 🌘 + 🌗 + 🌖 + 🌕 = 4
-
-⬜ +1
-⬛ +1`);
+`);
     }
 
     dealHands();
