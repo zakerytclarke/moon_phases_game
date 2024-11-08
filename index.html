@@ -228,9 +228,9 @@
 
     const gridSizes = [
       { rows: 3, cols: 3 },
-      { rows: 4, cols: 3 },
+      { rows: 3, cols: 4 },
       { rows: 4, cols: 4 },
-      { rows: 5, cols: 4 }
+      { rows: 4, cols: 5 }
     ];
     const selectedGridSize = gridSizes[Math.floor(Math.random() * gridSizes.length)];
     const grid = Array(selectedGridSize.rows).fill(null).map(() => Array(selectedGridSize.cols).fill({ phase: null, lastPlayer: null }));
