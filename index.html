@@ -64,7 +64,6 @@
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
       gap: 2px;
       width: 100%;
       height: 100%;
@@ -190,7 +189,7 @@
 
     <div class="grid-container">
       <div class="grid" id="game-grid">
-        <!-- 20 cells for the 5x4 grid -->
+        <!-- Cells for the grid will be generated here -->
       </div>
     </div>
 
@@ -208,11 +207,10 @@
   <div class="moon-phase-guide" onclick="displayScoringInfo()">
     <div>🌑</div>
     <div>🌘</div>
-    <div>🌗</div>
-    <div>🌖</div>
-    <div>🌕</div>
-    <div>🌔</div>
-    <div>🌓</div>
+    <div>🌑</div>
+    <div>🌒</div>
+    <div>🌒</div>
+    <div>🌒</div>
     <div>🌒</div>
   </div>
 
@@ -225,9 +223,17 @@
     let currentPlayer = 1;
     let selectedCard = null;
     let selectedCardIndex = null;
-    const grid = Array(5).fill(null).map(() => Array(4).fill({ phase: null, lastPlayer: null }));
     let moonriseHand = [];
     let moonsetHand = [];
+
+    const gridSizes = [
+      { rows: 3, cols: 3 },
+      { rows: 4, cols: 3 },
+      { rows: 4, cols: 4 },
+      { rows: 5, cols: 4 }
+    ];
+    const selectedGridSize = gridSizes[Math.floor(Math.random() * gridSizes.length)];
+    const grid = Array(selectedGridSize.rows).fill(null).map(() => Array(selectedGridSize.cols).fill({ phase: null, lastPlayer: null }));
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -276,9 +282,10 @@
 
     function initGrid() {
       const gameGrid = document.getElementById('game-grid');
+      gameGrid.style.gridTemplateColumns = `repeat(${selectedGridSize.cols}, 1fr)`;
       gameGrid.innerHTML = '';
-      for (let row = 0; row < 5; row++) {
-        for (let col = 0; col < 4; col++) {
+      for (let row = 0; row < selectedGridSize.rows; row++) {
+        for (let col = 0; col < selectedGridSize.cols; col++) {
           const cell = document.createElement('div');
           cell.className = 'cell';
           cell.onclick = () => handleCellClick(row, col);
@@ -298,7 +305,7 @@
 
       // Place the selected card on the grid and update the cell's border
       grid[row][col] = { phase: selectedCard, lastPlayer: currentPlayer };
-      const cell = document.getElementsByClassName('cell')[row * 4 + col];
+      const cell = document.getElementsByClassName('cell')[row * selectedGridSize.cols + col];
       cell.innerText = selectedCard;
       cell.classList.add(currentPlayer === 1 ? 'player1' : 'player2');
 
